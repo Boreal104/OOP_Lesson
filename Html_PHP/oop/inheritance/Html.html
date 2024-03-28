@@ -123,6 +123,7 @@
         </form>
 
         <button type="button" onclick="generateHistogram()">Show Histogram</button>
+        <button type="button" onclick="clearHistogram()">Clear Histogram</button>
         <div id="histogram"></div>
         <div id="result-container"></div>
     </div>
@@ -136,6 +137,11 @@
         function Updatestep() {
             document.getElementById('st').hidden = (document.getElementById('me').value == 1);
             document.getElementById('stl').hidden = (document.getElementById('me').value == 1);
+        }
+
+        function clearHistogram(){
+            const histogramDiv = document.getElementById('histogram');
+            histogramDiv.innerHTML = '';
         }
 
         function generateHistogram() {
