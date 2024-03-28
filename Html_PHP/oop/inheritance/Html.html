@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3x+1 Calculator</title>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 </head>
 
 <body>
@@ -62,10 +63,32 @@
             margin-bottom: 10px;
         }
 
-        /* Added CSS for histogram bars */
+        #histogram {
+            position: relative;
+            width: 800px;
+            height: 400px;
+        }
+
         .bar {
-            background-color: #007bff; /* Blue color */
-            margin-bottom: 1px;
+            background-color: #007bff;
+            margin: 2px;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .description {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            display: none;
         }
 
         /* Error message style */
@@ -116,77 +139,49 @@
         }
 
         function generateHistogram() {
-    const histogramDiv = document.getElementById('histogram');
-    histogramDiv.innerHTML = '';
+            const histogramDiv = document.getElementById('histogram');
+            histogramDiv.innerHTML = '';
 
-    if (Histogram) {
-        let maxCount = -1;
-        Histogram.forEach(item => {
-            if (item[1] > maxCount) {
-                maxCount = item[1];
+            if (Histogram) {
+                let maxCount = -1;
+                Histogram.forEach(item => {
+                    if (item[1] > maxCount) {
+                        maxCount = item[1];
+                    }
+                });
+
+                var canvas = new CanvasJS.Chart("histogram", {
+                    theme: "light2",
+                    animationEnabled: true,
+                    axisX: {
+                        reversed: true,
+                        labelAngle: -90,
+                        interval: 1,
+                        labelFontSize: 12
+                    },
+                    axisY: {
+                        title: "Frequency",
+                        titleFontSize: 16,
+                        labelFontSize: 12
+                    },
+                    data: [{
+                        type: "column",
+                        indexLabelFontColor: "black",
+                        indexLabelFontSize: 12,
+                        dataPoints: Histogram.map(item => {
+                            return { label: item[0], y: item[1] }
+                        })
+                    }]
+                });
+
+                canvas.render();
+            } else {
+                const errorMessage = document.createElement('div');
+                errorMessage.textContent = 'Error: No data available.';
+                errorMessage.classList.add('error-message');
+                histogramDiv.appendChild(errorMessage);
             }
-        });
-
-        var canvas = 800/(Histogram.length*1.1);
-
-        // Calculate step size for x-axis labels
-        let step = Math.ceil(maxCount / 10);
-        if (step === 0) {step = 1; }
-
-        // Create x-axis labels
-        const xAxis = document.createElement('div');
-        xAxis.style.display = 'flex';
-        xAxis.style.flexDirection = 'row-reverse';
-        xAxis.style.alignItems = 'center';
-
-        for (let i = maxCount; i >= 1; i -= step) {
-            const bar = document.createElement('div');
-            bar.style.height = `${100 / (maxCount/step)}%`;
-            bar.style.width = `${100 / (maxCount/step)}%`;
-            bar.style.textAlign = 'center';
-            bar.style.transform = 'rotate(-90deg)';
-            bar.innerText = i;
-
-            xAxis.appendChild(bar);
         }
-
-        histogramDiv.appendChild(xAxis);
-        
-        //bars
-        Histogram.forEach(item => {
-            const bar = document.createElement('div');
-            bar.classList.add('bar');
-            bar.style.height = `${canvas}px`;
-            bar.style.width = `${(item[1] / maxCount) * 95}%`;
-
-            const description = document.createElement('div');
-            description.style.transform =`translateX(-120%)`;
-            description.style.height = `40px`;
-            description.style.width = `80px`;
-            description.textContent = `Number:${item[0]} Iteration:${item[1]}`;
-            description.hidden = true;
-            bar.appendChild(description);
-
-            bar.addEventListener('mouseenter', function() {
-                bar.style.backgroundColor='#012a57';
-                
-                description.hidden = false;
-            });
-            bar.addEventListener('mouseleave', function() {
-                bar.style.backgroundColor='#007bff';
-                description.hidden = true;
-            });
-            //bar.innerText = item[0];
-            histogramDiv.appendChild(bar);
-        });
-
-    } else {
-        const errorMessage = document.createElement('div');
-        errorMessage.textContent = 'Error: No data available.';
-        errorMessage.classList.add('error-message');
-        histogramDiv.appendChild(errorMessage);
-    }
-}
 
 
 
